@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>ban.sante.efs.ccll</groupId>
+    <artifactId>ccll-demo</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <name>CCLL Demo DocBook Pipeline (Docbkx) Maven Example</name>
+    <description>An example project that demonstrates how to convert AsciiDoc to DocBook and feed it to the DocBook pipeline to generate a PDF using the Asciidoctor and Docbkx Maven plugins.</description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <asciidoctor.maven.plugin.version>1.5.2</asciidoctor.maven.plugin.version>
+        <jruby.version>1.7.17</jruby.version>
+    </properties>
+
+    <build>
+        <defaultGoal>process-resources</defaultGoal>
+        <plugins>
+            <plugin>
+                <groupId>org.asciidoctor</groupId>
+                <artifactId>asciidoctor-maven-plugin</artifactId>
+                <version>${asciidoctor.maven.plugin.version}</version>
+                <!-- Uncomment the following element to override the version of AsciidoctorJ -->
+                <!--
+                <dependencies>
+                    <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctorj</artifactId>
+                        <version>1.5.1-SNAPSHOT</version>
+                    </dependency>
+                </dependencies>
+                -->
+                <configuration>
+                    <sourceDirectory>src/docs/asciidoc</sourceDirectory>
+                    <!-- If you set baseDir to ${project.basedir}, top-level includes are resolved relative to the project root -->
+                    <!--
+                    <baseDir>${project.basedir}</baseDir>
+                    -->
+                    <attributes>
+                        <endpoint-url>http://example.org</endpoint-url> 
+                        <sourcedir>${project.build.sourceDirectory}</sourcedir>
+                    </attributes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>asciidoc-to-docbook</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>process-asciidoc</goal>
+                        </goals>
+                        <configuration>
+                            <backend>docbook</backend>
+                            <doctype>book</doctype>
+                            <attributes>
+                                <imagesdir>images</imagesdir>
+                                <biblioid>{biblioid}</biblioid>
+                                <releaseinfo>{releaseinfo}</releaseinfo>
+                            </attributes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!--
+            NOTE: Use the maven-resources-plugin if there are assets outside the AsciiDoc source folder
+                  that need to be copied to the generated-docs. The Maven plugin automatically copies
+                  non-AsciiDoc files in the AsciiDoc source folder to generated-docs.
+                  -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.6</version>
+                <executions>
+                    <execution>
+                        <id>copy-asciidoc-resources</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <directory>src/docs/asciidoc/images</directory>
+                                    <includes>
+                                        <include>**/*</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                            <outputDirectory>target/generated-docs/images/images</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>com.agilejava.docbkx</groupId>
+                <artifactId>docbkx-maven-plugin</artifactId>
+                <version>2.0.15</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>net.sf.docbook</groupId>
+                        <artifactId>docbook-xml</artifactId>
+                        <version>5.0-all</version>
+                        <classifier>resources</classifier>
+                        <type>zip</type>
+                        <scope>runtime</scope>
+                    </dependency>
+                    <dependency>
+                        <groupId>net.sf.xslthl</groupId>
+                        <artifactId>xslthl</artifactId>
+                        <version>2.0.1</version>
+                        <scope>runtime</scope>
+                    </dependency>
+                    <dependency>
+                        <groupId>net.sf.offo</groupId>
+                        <artifactId>fop-hyph</artifactId>
+                        <version>1.2</version>
+                        <scope>runtime</scope>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>generate-pdf</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>generate-pdf</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <sourceDirectory>${project.build.directory}/generated-docs</sourceDirectory>
+                    <targetDirectory>${project.build.directory}/generated-docs</targetDirectory>
+                    <includes>demo.xml</includes>
+                    <!-- NOTE imgSrcPath is handled by AsciiDoc settings -->
+                    <imgSrcPath></imgSrcPath>
+                    <!-- FIXME highlightSource not working! -->
+                    <highlightSource>1</highlightSource>
+                    <foCustomization>src/docs/asciidoc/cbd_fo.xsl</foCustomization>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

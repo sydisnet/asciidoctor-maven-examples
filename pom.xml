@@ -25,6 +25,7 @@
         <module>asciidoc-multiple-inputs-example</module>
         <module>docbook-pipeline-docbkx-example</module>
         <module>docbook-pipeline-jdocbook-example</module>
+        <module>ccll-demo</module>
     </modules>
 
     <profiles>
