@@ -1,0 +1,5 @@
+a2x -v -fdocbook demo.adoc
+xsltproc --output demo.fo cbd_fo.xsl demo.xml
+fop -fo demo.fo -pdf demo.pdf
+
+
